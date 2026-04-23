@@ -36,7 +36,7 @@ let configImpresso = {
     doseGapX: 0.2,
     doseGapY: 0.0,
     doseWidth: 4.3,
-    doseHeight: 2.1
+    doseHeight: 2
 };
 
 let clicksNeeded = Math.floor(Math.random() * 11) + 10;
