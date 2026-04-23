@@ -93,7 +93,7 @@ function renderizarLista() {
 
 window.adicionarVacina = function() {
     const novaId = Date.now();
-    const novaVacina = { id: novaId, vacina: '', lote: '', fabricante: '', validade: '' };
+    const novaVacina = { id: novaId, vacina: '', lote: '', fabricante: '', validade: '', isNew: true };
     state.vacinas.push(novaVacina);
     
     const card = document.createElement('div');
@@ -108,25 +108,6 @@ window.adicionarVacina = function() {
     contentArea.insertBefore(card, cardAdd);
     
     contentArea.scrollTop = contentArea.scrollHeight;
-}
-
-window.capitalizarPrimeirasLetras = function(input) {
-    const cursor = input.selectionStart;
-    const words = input.value.split(' ');
-    const conectivos = ['de', 'da', 'do', 'das', 'dos', 'e', 'com', 'para', 'em'];
-    
-    for (let i = 0; i < words.length; i++) {
-        if (words[i].length > 0) {
-            let w = words[i]; 
-            if (i !== 0 && conectivos.includes(w.toLowerCase())) {
-                words[i] = w.toLowerCase();
-            } else {
-                words[i] = w.charAt(0).toUpperCase() + w.slice(1);
-            }
-        }
-    }
-    input.value = words.join(' ');
-    input.setSelectionRange(cursor, cursor); 
 }
 
 window.formatarData = function(input) {
@@ -148,6 +129,22 @@ window.formatarData = function(input) {
     }
 }
 
+window.atualizarContador = function(input) {
+    const max = parseInt(input.getAttribute('maxlength'), 10);
+    const current = input.value.length;
+    const counter = input.nextElementSibling;
+    
+    if (counter && counter.classList.contains('char-counter')) {
+        counter.innerText = `${current}/${max}`;
+        if (current >= max) {
+            counter.classList.add('limit-reached');
+        } else {
+            counter.classList.remove('limit-reached');
+        }
+    }
+    input.classList.remove('error');
+}
+
 function gerarHTMLCardVacina(item, estado) {
     const classeValidade = classificarValidade(item.validade);
     
@@ -164,20 +161,33 @@ function gerarHTMLCardVacina(item, estado) {
         return `
             <div class="card-grid">
                 <div class="card-col">
-                    <input type="text" id="edit-vacina-${item.id}" class="card-input" placeholder="Vacina" value="${item.vacina}" maxlength="15" oninput="capitalizarPrimeirasLetras(this)">
+                    <div class="input-wrapper">
+                        <input type="text" id="edit-vacina-${item.id}" class="card-input" placeholder="Vacina" value="${item.vacina}" maxlength="15" oninput="atualizarContador(this)">
+                        <span class="char-counter ${item.vacina.length >= 15 ? 'limit-reached' : ''}">${item.vacina.length}/15</span>
+                    </div>
                 </div>
                 <div class="card-col">
-                    <input type="text" id="edit-lote-${item.id}" class="card-input" placeholder="Lote" value="${item.lote}" maxlength="15">
+                    <div class="input-wrapper">
+                        <input type="text" id="edit-lote-${item.id}" class="card-input" placeholder="Lote" value="${item.lote}" maxlength="15" oninput="atualizarContador(this)">
+                        <span class="char-counter ${item.lote.length >= 15 ? 'limit-reached' : ''}">${item.lote.length}/15</span>
+                    </div>
                 </div>
                 <div class="card-col">
-                    <input type="text" id="edit-fabricante-${item.id}" class="card-input" placeholder="Fabricante" value="${item.fabricante}" maxlength="15">
+                    <div class="input-wrapper">
+                        <input type="text" id="edit-fabricante-${item.id}" class="card-input" placeholder="Fabricante" value="${item.fabricante}" maxlength="15" oninput="atualizarContador(this)">
+                        <span class="char-counter ${item.fabricante.length >= 15 ? 'limit-reached' : ''}">${item.fabricante.length}/15</span>
+                    </div>
                 </div>
                 <div class="card-col text-center">
-                    <input type="text" id="edit-validade-${item.id}" class="card-input input-center" placeholder="Validade" value="${item.validade}" oninput="formatarData(this)" maxlength="10">
+                    <div class="input-wrapper">
+                        <input type="text" id="edit-validade-${item.id}" class="card-input input-center" placeholder="Validade" value="${item.validade}" oninput="formatarData(this); atualizarContador(this)" maxlength="10">
+                        <span class="char-counter ${item.validade.length >= 10 ? 'limit-reached' : ''}">${item.validade.length}/10</span>
+                    </div>
                 </div>
                 <div class="card-separator">|</div>
                 <div class="card-actions">
                     <button class="btn-action btn-save" onclick="salvarEdicao(${item.id})" title="Salvar">✔</button>
+                    <button class="btn-action btn-cancel" onclick="cancelarEdicao(${item.id})" title="Cancelar">✖</button>
                 </div>
             </div>
         `;
@@ -232,13 +242,38 @@ window.salvarEdicao = function(id) {
     const vacina = state.vacinas.find(v => v.id === id);
     if (!vacina) return;
     
-    vacina.vacina = document.getElementById(`edit-vacina-${id}`).value.trim();
+    const inputVacina = document.getElementById(`edit-vacina-${id}`);
+    const nomeValor = inputVacina.value.trim();
+
+    if (nomeValor === "") {
+        inputVacina.classList.remove('error');
+        void inputVacina.offsetWidth; 
+        inputVacina.classList.add('error');
+        inputVacina.focus();
+        return; 
+    }
+    
+    vacina.vacina = nomeValor;
     vacina.lote = document.getElementById(`edit-lote-${id}`).value.trim();
     vacina.fabricante = document.getElementById(`edit-fabricante-${id}`).value.trim();
     vacina.validade = document.getElementById(`edit-validade-${id}`).value.trim();
     
+    delete vacina.isNew;
+    
     salvarVacinas();
     renderizarLista(); 
+}
+
+window.cancelarEdicao = function(id) {
+    const index = state.vacinas.findIndex(v => v.id === id);
+    if (index > -1) {
+        if (state.vacinas[index].isNew) {
+            state.vacinas.splice(index, 1);
+            renderizarLista();
+        } else {
+            mudarEstadoCard(id, 'view');
+        }
+    }
 }
 
 window.confirmarExclusao = function(id) {

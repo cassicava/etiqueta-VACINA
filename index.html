@@ -321,6 +321,7 @@
                     </div>
 
                     <div class="tab-content" id="tab3">
+                        
                         <div class="config-grupo" style="border: 2px dashed var(--primary-color);">
                             <h4 style="color: var(--primary-color);">Quantidade de Registros DENTRO da Etiqueta</h4>
                             <div class="config-grupo-linha">
@@ -342,6 +343,33 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="config-grupo">
+                            <h4>Dados a Imprimir no Registro</h4>
+                            <div class="chips-container" id="chipsContainer">
+                                <button class="chip-btn active" data-field="vacina">Vacina</button>
+                                <button class="chip-btn active" data-field="data">Data</button>
+                                <button class="chip-btn active" data-field="lote">Lote</button>
+                                <button class="chip-btn active" data-field="fabricante">Fabricante</button>
+                                <button class="chip-btn active" data-field="vacinador">Vacinador</button>
+                            </div>
+                            
+                            <div style="display: flex; gap: 15px; width: 100%; justify-content: center; flex-wrap: wrap;">
+                                <div class="config-input-box" id="dataInputWrapper" style="margin-top: 20px;">
+                                    <label>Data a Imprimir</label>
+                                    <input type="text" id="cfgTextoData" class="card-input input-center" maxlength="15" style="width: 160px; padding: 10px;">
+                                    <div style="display: flex; gap: 5px; margin-top: 8px;">
+                                        <button id="btnDataHoje" class="chip-btn" style="font-size: 0.75rem; padding: 4px 10px; border-radius: 8px;">Hoje</button>
+                                        <button id="btnDataBranco" class="chip-btn" style="font-size: 0.75rem; padding: 4px 10px; border-radius: 8px;">Em Branco</button>
+                                    </div>
+                                </div>
+                                <div class="config-input-box" id="vacinadorInputWrapper" style="margin-top: 20px;">
+                                    <label>Nome do Vacinador</label>
+                                    <input type="text" id="cfgNomeVacinador" class="card-input input-center" maxlength="12" style="width: 160px; padding: 10px;">
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="config-grupo">
                             <h4>Tamanho do Registro de Dose</h4>
                             <div class="config-grupo-linha">

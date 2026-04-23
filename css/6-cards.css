@@ -1,6 +1,6 @@
 .cards-header {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 135px auto 160px;
+    grid-template-columns: 1fr 1fr 1fr 135px 30px 160px;
     gap: 15px;
     align-items: center;
     position: sticky;
@@ -43,7 +43,7 @@
 }
 
 .card:hover {
-    z-index: 10; /* Garante que o cartão atual fica por cima dos outros na hora do hover */
+    z-index: 10;
 }
 
 .card.editing {
@@ -79,7 +79,7 @@
 
 .card-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 135px auto 160px;
+    grid-template-columns: 1fr 1fr 1fr 135px 30px 160px;
     gap: 15px;
     align-items: center;
     width: 100%;
@@ -116,12 +116,11 @@
     padding-bottom: 1px;
 }
 
-/* Tooltip Customizado para a Validade */
 .card-value[data-tooltip] {
     position: relative;
     cursor: help;
     display: inline-block;
-    overflow: visible; /* A MÁGICA AQUI: Impede que o balão seja cortado! */
+    overflow: visible;
 }
 
 .card-value[data-tooltip]::after {
@@ -130,8 +129,8 @@
     bottom: 100%;
     left: 50%;
     transform: translateX(-50%) translateY(5px);
-    background-color: var(--text-color); /* Fundo contrastante */
-    color: var(--bg-color); /* Texto contrastante */
+    background-color: var(--text-color);
+    color: var(--bg-color);
     padding: 8px 15px;
     border-radius: 10px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
@@ -182,6 +181,13 @@
     user-select: none;
 }
 
+.input-wrapper {
+    position: relative;
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+}
+
 .card-input {
     width: 100%;
     padding: 12px;
@@ -204,6 +210,43 @@
     border-color: var(--primary-color);
     box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
     transform: translateY(-2px);
+}
+
+.card-input.error {
+    border-color: var(--btn-excluir-color) !important;
+    box-shadow: 0 0 0 4px rgba(229, 62, 62, 0.15) !important;
+    animation: shakeError 0.4s ease-in-out;
+}
+
+@keyframes shakeError {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+}
+
+.char-counter {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 5px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.input-wrapper:focus-within .char-counter {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(2px);
+}
+
+.char-counter.limit-reached {
+    color: var(--btn-excluir-color);
 }
 
 .card-actions {
@@ -285,6 +328,17 @@
     box-shadow: 0 6px 15px rgba(16, 185, 129, 0.3);
 }
 
+.btn-cancel {
+    background-color: var(--bg-color);
+    border: 2px solid var(--header-border);
+    color: var(--text-color);
+}
+
+.btn-cancel:hover {
+    background-color: var(--header-border);
+    transform: scale(1.15);
+}
+
 .confirm-msg {
     font-size: 0.9rem;
     font-weight: 800;
@@ -300,17 +354,6 @@
 .btn-confirm:hover {
     transform: scale(1.15);
     box-shadow: 0 6px 15px rgba(229, 62, 62, 0.3);
-}
-
-.btn-cancel {
-    background-color: var(--bg-color);
-    border: 2px solid var(--header-border);
-    color: var(--text-color);
-}
-
-.btn-cancel:hover {
-    background-color: var(--header-border);
-    transform: scale(1.15);
 }
 
 .empty-state {

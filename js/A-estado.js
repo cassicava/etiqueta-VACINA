@@ -36,7 +36,17 @@ let configImpresso = {
     doseGapX: 0.2,
     doseGapY: 0.0,
     doseWidth: 4.3,
-    doseHeight: 2
+    doseHeight: 2,
+
+    fields: {
+        vacina: true,
+        data: true,
+        lote: true,
+        fabricante: true,
+        vacinador: true
+    },
+    nomeVacinador: '',
+    textoData: ''
 };
 
 let clicksNeeded = Math.floor(Math.random() * 11) + 10;

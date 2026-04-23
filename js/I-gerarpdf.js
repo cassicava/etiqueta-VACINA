@@ -2,99 +2,90 @@ window.imprimirVacina = function(id) {
     const vacina = state.vacinas.find(v => v.id === id);
     if (!vacina) return;
 
-    const nomeVacinador = localStorage.getItem('lf_nome_usuario_vacina') || 'Usuario';
-    const dataAtual = new Date().toLocaleDateString('pt-BR');
+    const cfg = configImpresso;
+    const cfgFields = cfg.fields || { vacina: true, data: true, lote: true, fabricante: true, vacinador: true };
+    
+    const dataAtual = cfg.textoData || new Date().toLocaleDateString('pt-BR');
+    const usrV = cfg.nomeVacinador || localStorage.getItem('lf_nome_usuario_vacina') || 'USUÁRIO';
 
     const { jsPDF } = window.jspdf;
-    const cfg = configImpresso;
     
     const doc = new jsPDF({ 
         orientation: 'p', 
-        unit: 'cm', 
-        format: [cfg.pageWidth, cfg.pageHeight] 
+        unit: 'mm', 
+        format: [cfg.pageWidth * 10, cfg.pageHeight * 10] 
     });
 
     const labelsPorPagina = cfg.cols * cfg.rows;
-    const cm2pt = 28.3465;
+    const mm2pt = 2.83465;
 
     for (let index = 0; index < labelsPorPagina; index++) {
         const col = Math.floor(index / cfg.rows);
         const row = index % cfg.rows;
 
-        const labelX = cfg.marginLeft + col * (cfg.labelWidth + cfg.gapX);
-        const labelY = cfg.marginTop + row * (cfg.labelHeight + cfg.gapY);
+        const labelX = (cfg.marginLeft + col * (cfg.labelWidth + cfg.gapX)) * 10;
+        const labelY = (cfg.marginTop + row * (cfg.labelHeight + cfg.gapY)) * 10;
 
-        const innerStartX = labelX + cfg.padLeft;
-        const innerStartY = labelY + cfg.padTop;
+        const innerStartX = labelX + (cfg.padLeft * 10);
+        const innerStartY = labelY + (cfg.padTop * 10);
 
         for (let dr = 0; dr < cfg.doseRows; dr++) {
             for (let dc = 0; dc < cfg.doseCols; dc++) {
-                const doseX = innerStartX + (dc * (cfg.doseWidth + cfg.doseGapX));
-                const doseY = innerStartY + (dr * (cfg.doseHeight + cfg.doseGapY));
+                const doseX = innerStartX + (dc * (cfg.doseWidth + cfg.doseGapX) * 10);
+                const doseY = innerStartY + (dr * (cfg.doseHeight + cfg.doseGapY) * 10);
+                const doseW_mm = cfg.doseWidth * 10;
+                const doseH_mm = cfg.doseHeight * 10;
 
-                // Borda do Carimbo
-                doc.setLineWidth(0.01);
-                doc.setDrawColor(180, 180, 180);
-                doc.setLineDashPattern([0.1, 0.1], 0);
-                doc.rect(doseX, doseY, cfg.doseWidth, cfg.doseHeight);
-                doc.setLineDashPattern([], 0); 
+                doc.setLineWidth(0.6);
+                doc.setDrawColor(0, 0, 0);
+                doc.rect(doseX, doseY, doseW_mm, doseH_mm);
 
-                // Margem de segurança para o texto não colar na borda
-                const textPad = 0.1;
-                const contentX = doseX + textPad;
-                const contentY = doseY + textPad;
+                const textPad_mm = 1.0;
+                const contentX = doseX + textPad_mm;
+                const contentY = doseY + textPad_mm;
                 
-                const usableH = cfg.doseHeight - (textPad * 2);
-                const usableW = cfg.doseWidth - (textPad * 2);
+                const usableH_mm = doseH_mm - (textPad_mm * 2);
+                const usableW_mm = doseW_mm - (textPad_mm * 2);
 
-                // Altura Base: O divisor 9.0 garante que as 5 linhas caibam com respiro
-                const unitH = usableH / 9.0;
-                const baseLarge_pt = (unitH * 2.0) * cm2pt;
-                const baseSmall_pt = (unitH * 1.5) * cm2pt;
+                const unitH_mm = usableH_mm / 9.0;
+                const baseLarge_pt = (unitH_mm * 2.0) * mm2pt;
+                const baseSmall_pt = (unitH_mm * 1.5) * mm2pt;
 
-                // Mede a largura exata de cada palavra no PDF (Retorna em Centímetros)
+                let maxW_mm = 0;
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(baseLarge_pt);
-                const wVac = doc.getTextWidth(vacina.vacina.toUpperCase());
-                const wDat = doc.getTextWidth(dataAtual);
+                if (cfgFields.vacina) maxW_mm = Math.max(maxW_mm, doc.getTextWidth(vacina.vacina.toUpperCase()));
+                if (cfgFields.data) maxW_mm = Math.max(maxW_mm, doc.getTextWidth(dataAtual));
 
                 doc.setFont("helvetica", "normal");
                 doc.setFontSize(baseSmall_pt);
-                const wLot = doc.getTextWidth(vacina.lote);
-                const wFab = doc.getTextWidth(vacina.fabricante);
-                const wUsr = doc.getTextWidth(nomeVacinador.toUpperCase());
+                if (cfgFields.lote) maxW_mm = Math.max(maxW_mm, doc.getTextWidth(vacina.lote));
+                if (cfgFields.fabricante) maxW_mm = Math.max(maxW_mm, doc.getTextWidth(vacina.fabricante));
+                if (cfgFields.vacinador) maxW_mm = Math.max(maxW_mm, doc.getTextWidth(usrV.toUpperCase()));
 
-                // Pega a palavra mais comprida para definir a escala
-                const maxW_cm = Math.max(wVac, wDat, wLot, wFab, wUsr);
-
-                // Escala Global: Se a palavra transbordar, o bloco TODO encolhe por igual
                 let globalScale = 1;
-                if (maxW_cm > usableW) {
-                    globalScale = usableW / maxW_cm;
+                if (maxW_mm > usableW_mm) {
+                    globalScale = usableW_mm / maxW_mm;
                 }
 
-                const fLarge = baseLarge_pt * globalScale;
-                const fSmall = baseSmall_pt * globalScale;
+                const activeItems = [];
+                if (cfgFields.vacina) activeItems.push({ text: vacina.vacina.toUpperCase(), font: 'bold', size: baseLarge_pt * globalScale, color: 0 });
+                if (cfgFields.data) activeItems.push({ text: dataAtual, font: 'bold', size: baseLarge_pt * globalScale, color: 0 });
+                if (cfgFields.lote) activeItems.push({ text: vacina.lote, font: 'normal', size: baseSmall_pt * globalScale, color: 50 });
+                if (cfgFields.fabricante) activeItems.push({ text: vacina.fabricante, font: 'normal', size: baseSmall_pt * globalScale, color: 50 });
+                if (cfgFields.vacinador) activeItems.push({ text: usrV.toUpperCase(), font: 'normal', size: baseSmall_pt * globalScale, color: 50 });
 
-                // Posições exatas baseadas na altura (0%, 24%, 52%, 70%, 88%)
-                const y1 = contentY + (usableH * 0.0);
-                const y2 = contentY + (usableH * 0.24);
-                const y3 = contentY + (usableH * 0.52);
-                const y4 = contentY + (usableH * 0.70);
-                const y5 = contentY + (usableH * 0.88);
-
-                doc.setFontSize(fLarge);
-                doc.setFont("helvetica", "bold");
-                doc.setTextColor(0, 0, 0);
-                doc.text(vacina.vacina.toUpperCase(), contentX, y1, { baseline: 'top' });
-                doc.text(dataAtual, contentX, y2, { baseline: 'top' });
-
-                doc.setFontSize(fSmall);
-                doc.setFont("helvetica", "normal");
-                doc.setTextColor(50, 50, 50);
-                doc.text(vacina.lote, contentX, y3, { baseline: 'top' });
-                doc.text(vacina.fabricante, contentX, y4, { baseline: 'top' });
-                doc.text(nomeVacinador.toUpperCase(), contentX, y5, { baseline: 'top' });
+                const count = activeItems.length;
+                if (count > 0) {
+                    const segmentH = usableH_mm / count;
+                    activeItems.forEach((item, idx) => {
+                        const y = contentY + (idx * segmentH) + (segmentH / 2);
+                        doc.setFont("helvetica", item.font);
+                        doc.setFontSize(item.size);
+                        doc.setTextColor(item.color, item.color, item.color);
+                        doc.text(item.text, contentX, y, { baseline: 'middle' });
+                    });
+                }
             }
         }
     }

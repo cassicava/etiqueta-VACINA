@@ -66,7 +66,14 @@ function carregarConfiguracoes() {
         try {
             const parsed = JSON.parse(saved);
             configImpresso = { ...configImpresso, ...parsed };
+            if (!configImpresso.fields) {
+                configImpresso.fields = { vacina: true, data: true, lote: true, fabricante: true, vacinador: true };
+            }
         } catch(e) {}
+    } else {
+        if (!configImpresso.fields) {
+            configImpresso.fields = { vacina: true, data: true, lote: true, fabricante: true, vacinador: true };
+        }
     }
 
     for (let key in inputsCfg) {
@@ -78,6 +85,32 @@ function carregarConfiguracoes() {
             }
         }
     }
+
+    document.querySelectorAll('.chip-btn[data-field]').forEach(btn => {
+        const field = btn.getAttribute('data-field');
+        if (configImpresso.fields[field]) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+
+    const cfgNomeVacinador = document.getElementById('cfgNomeVacinador');
+    if (cfgNomeVacinador) {
+        cfgNomeVacinador.value = configImpresso.nomeVacinador || localStorage.getItem('lf_nome_usuario_vacina') || '';
+    }
+
+    const cfgTextoData = document.getElementById('cfgTextoData');
+    if (cfgTextoData) {
+        cfgTextoData.value = configImpresso.textoData || new Date().toLocaleDateString('pt-BR');
+    }
+
+    const wrapperVacinador = document.getElementById('vacinadorInputWrapper');
+    if (wrapperVacinador) wrapperVacinador.style.display = configImpresso.fields.vacinador ? 'flex' : 'none';
+
+    const wrapperData = document.getElementById('dataInputWrapper');
+    if (wrapperData) wrapperData.style.display = configImpresso.fields.data ? 'flex' : 'none';
+
     atualizarPreview();
 }
 
@@ -96,6 +129,11 @@ function atualizarPreview() {
     for (let key in inputsCfg) {
         cfgUser[key] = parseFloat(inputsCfg[key].value) || 0;
     }
+    
+    cfgUser.fields = {};
+    document.querySelectorAll('.chip-btn[data-field]').forEach(b => {
+        cfgUser.fields[b.dataset.field] = b.classList.contains('active');
+    });
 
     const reqLabelW = cfgUser.marginLeft + cfgUser.marginRight + (cfgUser.cols * cfgUser.labelWidth) + (Math.max(0, cfgUser.cols - 1) * cfgUser.gapX);
     const reqLabelH = cfgUser.marginTop + cfgUser.marginBottom + (cfgUser.rows * cfgUser.labelHeight) + (Math.max(0, cfgUser.rows - 1) * cfgUser.gapY);
@@ -186,8 +224,14 @@ function atualizarPreview() {
         fabV = state.vacinas.reduce((max, obj) => (obj.fabricante || '').length > max.length ? obj.fabricante : max, state.vacinas[0].fabricante || '') || 'FABRICANTE';
     }
 
-    const datV = new Date().toLocaleDateString('pt-BR');
-    const usrV = localStorage.getItem('lf_nome_usuario_vacina') || 'USUÁRIO';
+    const inputDataStr = document.getElementById('cfgTextoData').value.trim();
+    const datV = inputDataStr || new Date().toLocaleDateString('pt-BR');
+    
+    const nomeInputVacinador = document.getElementById('cfgNomeVacinador').value.trim();
+    const usrV = nomeInputVacinador || localStorage.getItem('lf_nome_usuario_vacina') || 'USUÁRIO';
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
 
     for (let r = 0; r < cfgUser.doseRows; r++) {
         for (let c = 0; c < cfgUser.doseCols; c++) {
@@ -216,14 +260,28 @@ function atualizarPreview() {
                 let baseLarge = unitH * 2.0; 
                 let baseSmall = unitH * 1.5; 
 
-                // Estimativa rigorosa para a Escala Global
-                const maxEstW = Math.max(
-                    vacV.length * (baseLarge * 0.60),
-                    datV.length * (baseLarge * 0.60),
-                    lotV.length * (baseSmall * 0.50),
-                    fabV.length * (baseSmall * 0.50),
-                    usrV.length * (baseSmall * 0.50)
-                );
+                let maxEstW = 0;
+
+                if (cfgUser.fields.vacina) {
+                    ctx.font = `800 ${baseLarge}px helvetica, sans-serif`;
+                    maxEstW = Math.max(maxEstW, ctx.measureText(vacV.toUpperCase()).width);
+                }
+                if (cfgUser.fields.data) {
+                    ctx.font = `800 ${baseLarge}px helvetica, sans-serif`;
+                    maxEstW = Math.max(maxEstW, ctx.measureText(datV).width);
+                }
+                if (cfgUser.fields.lote) {
+                    ctx.font = `600 ${baseSmall}px helvetica, sans-serif`;
+                    maxEstW = Math.max(maxEstW, ctx.measureText(lotV).width);
+                }
+                if (cfgUser.fields.fabricante) {
+                    ctx.font = `600 ${baseSmall}px helvetica, sans-serif`;
+                    maxEstW = Math.max(maxEstW, ctx.measureText(fabV).width);
+                }
+                if (cfgUser.fields.vacinador) {
+                    ctx.font = `600 ${baseSmall}px helvetica, sans-serif`;
+                    maxEstW = Math.max(maxEstW, ctx.measureText(usrV.toUpperCase()).width);
+                }
 
                 let scaleF = 1;
                 if (maxEstW > usableW) {
@@ -233,15 +291,26 @@ function atualizarPreview() {
                 const fLarge = baseLarge * scaleF;
                 const fSmall = baseSmall * scaleF;
 
-                dBox.innerHTML = `
-                    <div style="position: relative; width: 100%; height: 100%;">
-                        <div style="position: absolute; left: ${textPad}px; right: ${textPad}px; top: ${textPad}px; font-weight: 800; font-size: ${fLarge}px; line-height: 1; white-space: nowrap; overflow: hidden; color: #000;">${vacV}</div>
-                        <div style="position: absolute; left: ${textPad}px; right: ${textPad}px; top: ${textPad + (usableH * 0.24)}px; font-weight: 800; font-size: ${fLarge}px; line-height: 1; white-space: nowrap; overflow: hidden; color: #000;">${datV}</div>
-                        <div style="position: absolute; left: ${textPad}px; right: ${textPad}px; top: ${textPad + (usableH * 0.52)}px; font-weight: 600; font-size: ${fSmall}px; line-height: 1; white-space: nowrap; overflow: hidden; color: #505050;">${lotV}</div>
-                        <div style="position: absolute; left: ${textPad}px; right: ${textPad}px; top: ${textPad + (usableH * 0.70)}px; font-weight: 600; font-size: ${fSmall}px; line-height: 1; white-space: nowrap; overflow: hidden; color: #505050;">${fabV}</div>
-                        <div style="position: absolute; left: ${textPad}px; right: ${textPad}px; top: ${textPad + (usableH * 0.88)}px; font-weight: 600; font-size: ${fSmall}px; line-height: 1; white-space: nowrap; overflow: hidden; color: #505050;">${usrV.toUpperCase()}</div>
-                    </div>
-                `;
+                const activeItems = [];
+                if (cfgUser.fields.vacina) activeItems.push({ text: vacV, weight: 800, size: fLarge, color: '#000' });
+                if (cfgUser.fields.data) activeItems.push({ text: datV, weight: 800, size: fLarge, color: '#000' });
+                if (cfgUser.fields.lote) activeItems.push({ text: lotV, weight: 600, size: fSmall, color: '#505050' });
+                if (cfgUser.fields.fabricante) activeItems.push({ text: fabV, weight: 600, size: fSmall, color: '#505050' });
+                if (cfgUser.fields.vacinador) activeItems.push({ text: usrV.toUpperCase(), weight: 600, size: fSmall, color: '#505050' });
+
+                let innerHTML = `<div style="position: relative; width: 100%; height: 100%;">`;
+                const count = activeItems.length;
+                
+                if (count > 0) {
+                    const segmentH = usableH / count;
+                    activeItems.forEach((item, idx) => {
+                        const topPos = textPad + (idx * segmentH) + (segmentH / 2);
+                        innerHTML += `<div style="position: absolute; left: ${textPad}px; right: ${textPad}px; top: ${topPos}px; transform: translateY(-50%); font-weight: ${item.weight}; font-size: ${item.size}px; line-height: 1; white-space: nowrap; overflow: hidden; color: ${item.color};">${item.text}</div>`;
+                    });
+                }
+
+                innerHTML += `</div>`;
+                dBox.innerHTML = innerHTML;
             }
             previewLabel.appendChild(dBox);
         }
@@ -295,6 +364,46 @@ for (let key in inputsCfg) {
     }
 }
 
+document.querySelectorAll('.chip-btn[data-field]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        btn.classList.toggle('active');
+        
+        if (btn.getAttribute('data-field') === 'vacinador') {
+            const wrapper = document.getElementById('vacinadorInputWrapper');
+            if (wrapper) wrapper.style.display = btn.classList.contains('active') ? 'flex' : 'none';
+        }
+        if (btn.getAttribute('data-field') === 'data') {
+            const wrapper = document.getElementById('dataInputWrapper');
+            if (wrapper) wrapper.style.display = btn.classList.contains('active') ? 'flex' : 'none';
+        }
+
+        atualizarPreview();
+    });
+});
+
+const inputNomeVacinador = document.getElementById('cfgNomeVacinador');
+if (inputNomeVacinador) inputNomeVacinador.addEventListener('input', atualizarPreview);
+
+const inputTextoData = document.getElementById('cfgTextoData');
+if (inputTextoData) inputTextoData.addEventListener('input', atualizarPreview);
+
+const btnDataHoje = document.getElementById('btnDataHoje');
+if (btnDataHoje) {
+    btnDataHoje.addEventListener('click', () => {
+        document.getElementById('cfgTextoData').value = new Date().toLocaleDateString('pt-BR');
+        atualizarPreview();
+    });
+}
+
+const btnDataBranco = document.getElementById('btnDataBranco');
+if (btnDataBranco) {
+    btnDataBranco.addEventListener('click', () => {
+        const ano = new Date().getFullYear();
+        document.getElementById('cfgTextoData').value = `___/___/${ano}`;
+        atualizarPreview();
+    });
+}
+
 if (btnConfigPrint) {
     btnConfigPrint.addEventListener('click', () => {
         carregarConfiguracoes(); 
@@ -322,6 +431,18 @@ btnSalvarConfig.addEventListener('click', () => {
     for (let key in inputsCfg) {
         configImpresso[key] = parseFloat(inputsCfg[key].value) || 0;
     }
+
+    configImpresso.fields = {};
+    document.querySelectorAll('.chip-btn[data-field]').forEach(btn => {
+        configImpresso.fields[btn.getAttribute('data-field')] = btn.classList.contains('active');
+    });
+
+    const cfgNomeVacinador = document.getElementById('cfgNomeVacinador');
+    if (cfgNomeVacinador) configImpresso.nomeVacinador = cfgNomeVacinador.value.trim();
+
+    const cfgTextoData = document.getElementById('cfgTextoData');
+    if (cfgTextoData) configImpresso.textoData = cfgTextoData.value.trim();
+
     localStorage.setItem('vacina_config_impressao', JSON.stringify(configImpresso));
     
     btnSalvarConfig.innerText = "Salvo! ✔";
