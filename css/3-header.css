@@ -43,7 +43,16 @@
     margin: 0;
     pointer-events: none;
     transition: all 1.2s cubic-bezier(0.25, 0.8, 0.25, 1);
-    background: linear-gradient(to right, #9CA3AF, #E5E7EB, #FFFFFF, #6B7280, #E5E7EB, #9CA3AF);
+    
+    /* Faixa de transição muito mais larga e adaptável aos temas */
+      background: linear-gradient(to right, 
+        var(--title-grad-1) 0%, 
+        var(--title-grad-1) 20%, 
+        var(--title-grad-2) 40%, 
+        var(--title-grad-2) 60%, 
+        var(--title-grad-1) 80%, 
+        var(--title-grad-1) 100%
+     );
     background-size: 200% auto;
     color: transparent;
     -webkit-background-clip: text;

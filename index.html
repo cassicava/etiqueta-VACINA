@@ -78,11 +78,15 @@
                 <h3 class="termo-title">🔒 TERMOS DE USO</h3>
                 <div class="termo-text">
                     <hr>
-                    <h4>1. Natureza do Software</h4>
-                    <p>O sistema Vacina opera exclusivamente rodando no seu computador de forma local.</p>
+                    <h4>1. Finalidade do Sistema</h4>
+                    <p>O "Etiqueta de Vacina" é uma ferramenta facilitadora criada exclusivamente para formatar e gerar impressões de Registos de Dose (carimbos) de forma ágil.</p>
                     <hr>
-                    <h4>2. Responsabilidade do Utilizador</h4>
-                    <p>É da responsabilidade do utilizador garantir que as etiquetas geradas possuem as informações corretas de lote e validade.</p>
+                    <h4>2. Responsabilidade Total do Utilizador</h4>
+                    <p>A inserção dos dados (Nome da Vacina, Lote, Fabricante e Validade) é feita de forma estritamente manual pelo utilizador da plataforma.</p>
+                    <p style="color: var(--btn-excluir-color);"><strong>ATENÇÃO:</strong> Qualquer erro de digitação, datas incorretas, lotes trocados ou informações inválidas que sejam impressas e afixadas em cadernetas de pacientes são de <strong>exclusiva e inteira responsabilidade do profissional que preencheu e gerou a etiqueta</strong>. O sistema não cruza dados de entidades de saúde nem valida a veracidade clínica dos lotes ou validades inseridos.</p>
+                    <hr>
+                    <h4>3. Verificação Obrigatória</h4>
+                    <p>É estritamente obrigatório conferir os dados da etiqueta gerada com a rotulagem do frasco físico antes de realizar qualquer aplicação no paciente.</p>
                 </div>
             </div>
             
@@ -90,12 +94,15 @@
                 <h3 class="termo-title">🛡️ POLÍTICA DE PRIVACIDADE</h3>
                 <div class="termo-text">
                     <hr>
-                    <h4>1. Princípio Fundamental</h4>
-                    <p>O sistema foi desenvolvido com o princípio de privacidade total:</p>
+                    <h4>1. Princípio Fundamental de Privacidade</h4>
+                    <p>Este sistema foi concebido com "Zero Trust" (Confiança Zero) em relação a servidores externos:</p>
                     <ul>
-                        <li>Nenhum dado é coletado ou transmitido remotamente.</li>
-                        <li>Os dados inseridos permanecem salvos localmente.</li>
+                        <li><strong>Nenhum dado</strong> inserido no sistema é recolhido, analisado ou transmitido pela internet.</li>
+                        <li>A base de dados de vacinas fica armazenada unicamente de forma local (offline) na memória do seu navegador.</li>
                     </ul>
+                    <hr>
+                    <h4>2. Segurança e Backup</h4>
+                    <p>Como os dados não são guardados em servidores centrais (nuvem), a segurança do histórico depende do seu computador. Recomendamos vivamente o uso do botão de <strong>Backup (Exportar/Importar)</strong> para evitar a perda das vacinas configuradas caso limpe o histórico do seu navegador.</p>
                 </div>
             </div>
         </div>
@@ -315,7 +322,7 @@
 
                     <div class="tab-content" id="tab3">
                         <div class="config-grupo" style="border: 2px dashed var(--primary-color);">
-                            <h4 style="color: var(--primary-color);">Quantidade de Registros na Etiqueta</h4>
+                            <h4 style="color: var(--primary-color);">Quantidade de Registros DENTRO da Etiqueta</h4>
                             <div class="config-grupo-linha">
                                 <div class="config-input-box">
                                     <label>Colunas</label>
@@ -391,6 +398,13 @@
                     </div>
                     <div class="preview-card">
                         <h4>Zoom na Etiqueta (Divisão dos Registros)</h4>
+                        
+                        <div class="info-preview">
+                            <span class="info-dash">-------------------------------------------</span><br>
+                            💡 <b>Dica Inteligente:</b> Este exemplo usa a vacina com a <b>maior quantidade de letras</b> do seu cadastro, garantindo que o texto nunca seja cortado!<br>
+                            <span class="info-dash">-------------------------------------------</span>
+                        </div>
+
                         <div id="previewLabelWrapper" class="preview-label-wrapper">
                             <div id="previewLabel"></div>
                         </div>

@@ -37,13 +37,16 @@
     align-items: center;
     justify-content: center;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     z-index: 10000;
+    padding: 0; 
+    line-height: 1; 
+    transform-origin: center center; 
 }
 
 .btn-fechar-overlay:hover {
     color: var(--btn-excluir-color);
-    transform: scale(1.1) rotate(90deg);
+    transform: scale(1.15) rotate(90deg);
 }
 
 .termos-cards-wrapper {

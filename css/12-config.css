@@ -151,6 +151,11 @@
     transition: background-color 0.3s ease;
 }
 
+.config-panel-right.preview-error-bg {
+    background-color: rgba(239, 68, 68, 0.1);
+    box-shadow: inset 0 0 50px rgba(239, 68, 68, 0.2);
+}
+
 .preview-split-container {
     display: flex;
     gap: 20px;
@@ -177,6 +182,22 @@
     color: var(--text-color);
     text-align: center;
     font-size: 1.1rem;
+}
+
+.info-preview {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    line-height: 1.4;
+    padding: 0 10px;
+}
+
+.info-dash {
+    color: var(--header-border);
+    letter-spacing: 2px;
+    user-select: none;
+    opacity: 0.5;
 }
 
 .preview-page-wrapper, .preview-label-wrapper {
@@ -337,6 +358,7 @@
     text-align: center;
     padding: 8px 0;
     outline: none;
+    appearance: textfield;
     -moz-appearance: textfield;
 }
 

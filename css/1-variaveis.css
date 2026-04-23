@@ -23,6 +23,11 @@
     --error-border: rgba(254, 178, 178, 0.8);
     --error-text: #c53030;
     --modal-bg: #ffffff;
+
+    /* Variáveis do Título Prateado (Tema Claro - Chumbo e Prata Escuro) */
+    --title-grad-1: #374151;
+    --title-grad-2: #9CA3AF;
+    --title-grad-3: #111827;
 }
 
 [data-theme="dark"] {
@@ -42,6 +47,11 @@
     --error-border: rgba(200, 50, 50, 0.6);
     --error-text: #fc8181;
     --modal-bg: #1e1f20;
+
+    /* Variáveis do Título Prateado (Tema Escuro - Prata Claro e Branco) */
+    --title-grad-1: #9CA3AF;
+    --title-grad-2: #F9FAFB;
+    --title-grad-3: #4B5563;
 }
 
 * {

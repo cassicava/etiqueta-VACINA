@@ -150,6 +150,15 @@ window.formatarData = function(input) {
 
 function gerarHTMLCardVacina(item, estado) {
     const classeValidade = classificarValidade(item.validade);
+    
+    let tooltipAttr = "";
+    if (classeValidade === 'validade-vencida') {
+        tooltipAttr = `data-tooltip="🔴 Cuidado: Vacina Vencida!"`;
+    } else if (classeValidade === 'validade-aviso') {
+        tooltipAttr = `data-tooltip="🟠 Atenção: Vence em menos de 60 dias"`;
+    } else if (classeValidade === 'validade-ok') {
+        tooltipAttr = `data-tooltip="🟢 Validade no prazo adequado"`;
+    }
 
     if (estado === 'edit') {
         return `
@@ -178,7 +187,7 @@ function gerarHTMLCardVacina(item, estado) {
                 <div class="card-col"><span class="card-value">${item.vacina}</span></div>
                 <div class="card-col"><span class="card-value">${item.lote}</span></div>
                 <div class="card-col"><span class="card-value">${item.fabricante}</span></div>
-                <div class="card-col text-center"><span class="card-value ${classeValidade}">${item.validade}</span></div>
+                <div class="card-col text-center"><span class="card-value ${classeValidade}" ${tooltipAttr}>${item.validade}</span></div>
                 <div class="card-separator">|</div>
                 <div class="card-actions">
                     <span class="confirm-msg">Excluir?</span>
@@ -193,7 +202,7 @@ function gerarHTMLCardVacina(item, estado) {
                 <div class="card-col"><span class="card-value" data-label="Vacina">${item.vacina}</span></div>
                 <div class="card-col"><span class="card-value" data-label="Lote">${item.lote}</span></div>
                 <div class="card-col"><span class="card-value" data-label="Fabricante">${item.fabricante}</span></div>
-                <div class="card-col text-center"><span class="card-value ${classeValidade}" data-label="Validade">${item.validade}</span></div>
+                <div class="card-col text-center"><span class="card-value ${classeValidade}" data-label="Validade" ${tooltipAttr}>${item.validade}</span></div>
                 <div class="card-separator">|</div>
                 <div class="card-actions">
                     <button class="btn-action btn-print" onclick="imprimirVacina(${item.id})" title="Imprimir Etiquetas">🖨️</button>
