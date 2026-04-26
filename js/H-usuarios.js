@@ -1,6 +1,6 @@
 const usuariosHabilitados = [
     {
-        usuario: "admin",
+        usuario: "cassiano",
         senha: "123456",
         genero: "M"
     },

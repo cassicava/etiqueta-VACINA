@@ -72,7 +72,7 @@ window.imprimirListaVacinas = function() {
             doc.rect(startX, startY, 180, rowHeight, 'F');
         }
 
-        doc.text((v.vacina || '').toUpperCase(), startX + 2, startY + 6.5);
+        doc.text(v.vacina || '', startX + 2, startY + 6.5);
         doc.text(v.lote || '', startX + colWidths[0] + 2, startY + 6.5);
         doc.text(v.fabricante || '', startX + colWidths[0] + colWidths[1] + 2, startY + 6.5);
         doc.text(v.validade || '', startX + colWidths[0] + colWidths[1] + colWidths[2] + 2, startY + 6.5);
@@ -87,7 +87,7 @@ function gerarPDFUnificado(listaVacinas) {
     const cfg = configImpresso;
     const cfgFields = cfg.fields || { vacina: true, data: true, lote: true, fabricante: true, vacinador: true };
     const dataAtual = cfg.textoData || new Date().toLocaleDateString('pt-BR');
-    const usrV = cfg.nomeVacinador || localStorage.getItem('lf_nome_usuario_vacina') || 'USUÁRIO';
+    const usrV = cfg.nomeVacinador || localStorage.getItem('lf_nome_usuario_vacina') || 'Usuário';
 
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ 
@@ -144,14 +144,14 @@ function gerarPDFUnificado(listaVacinas) {
                 let maxW_mm = 0;
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(baseLarge_pt);
-                if (cfgFields.vacina) maxW_mm = Math.max(maxW_mm, doc.getTextWidth((vacinaAtual.vacina || '').toUpperCase()));
+                if (cfgFields.vacina) maxW_mm = Math.max(maxW_mm, doc.getTextWidth(vacinaAtual.vacina || ''));
                 if (cfgFields.data) maxW_mm = Math.max(maxW_mm, doc.getTextWidth(dataAtual));
 
                 doc.setFont("helvetica", "normal");
                 doc.setFontSize(baseSmall_pt);
                 if (cfgFields.lote) maxW_mm = Math.max(maxW_mm, doc.getTextWidth(vacinaAtual.lote || ''));
                 if (cfgFields.fabricante) maxW_mm = Math.max(maxW_mm, doc.getTextWidth(vacinaAtual.fabricante || ''));
-                if (cfgFields.vacinador) maxW_mm = Math.max(maxW_mm, doc.getTextWidth(usrV.toUpperCase()));
+                if (cfgFields.vacinador) maxW_mm = Math.max(maxW_mm, doc.getTextWidth(usrV));
 
                 let globalScale = 1;
                 if (maxW_mm > usableW_mm) {
@@ -159,11 +159,11 @@ function gerarPDFUnificado(listaVacinas) {
                 }
 
                 const activeItems = [];
-                if (cfgFields.vacina) activeItems.push({ text: (vacinaAtual.vacina || '').toUpperCase(), font: 'bold', size: baseLarge_pt * globalScale, color: 0 });
+                if (cfgFields.vacina) activeItems.push({ text: vacinaAtual.vacina || '', font: 'bold', size: baseLarge_pt * globalScale, color: 0 });
                 if (cfgFields.data) activeItems.push({ text: dataAtual, font: 'bold', size: baseLarge_pt * globalScale, color: 0 });
                 if (cfgFields.lote) activeItems.push({ text: vacinaAtual.lote || '', font: 'normal', size: baseSmall_pt * globalScale, color: 50 });
                 if (cfgFields.fabricante) activeItems.push({ text: vacinaAtual.fabricante || '', font: 'normal', size: baseSmall_pt * globalScale, color: 50 });
-                if (cfgFields.vacinador) activeItems.push({ text: usrV.toUpperCase(), font: 'normal', size: baseSmall_pt * globalScale, color: 50 });
+                if (cfgFields.vacinador) activeItems.push({ text: usrV, font: 'normal', size: baseSmall_pt * globalScale, color: 50 });
 
                 const count = activeItems.length;
                 if (count > 0) {

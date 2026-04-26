@@ -214,12 +214,12 @@ function atualizarPreview() {
     labelPadBox.style.zIndex = '5';
     previewLabel.appendChild(labelPadBox);
 
-    let vacV = 'VACINA';
+    let vacV = 'Vacina';
     let lotV = 'LOTE123';
     let fabV = 'FABRICANTE';
     
     if (state.vacinas && state.vacinas.length > 0) {
-        vacV = state.vacinas.reduce((max, obj) => (obj.vacina || '').length > max.length ? obj.vacina : max, state.vacinas[0].vacina || '').toUpperCase() || 'VACINA';
+        vacV = state.vacinas.reduce((max, obj) => (obj.vacina || '').length > max.length ? obj.vacina : max, state.vacinas[0].vacina || '') || 'Vacina';
         lotV = state.vacinas.reduce((max, obj) => (obj.lote || '').length > max.length ? obj.lote : max, state.vacinas[0].lote || '') || 'LOTE123';
         fabV = state.vacinas.reduce((max, obj) => (obj.fabricante || '').length > max.length ? obj.fabricante : max, state.vacinas[0].fabricante || '') || 'FABRICANTE';
     }
@@ -228,7 +228,7 @@ function atualizarPreview() {
     const datV = inputDataStr || new Date().toLocaleDateString('pt-BR');
     
     const nomeInputVacinador = document.getElementById('cfgNomeVacinador').value.trim();
-    const usrV = nomeInputVacinador || localStorage.getItem('lf_nome_usuario_vacina') || 'USUÁRIO';
+    const usrV = nomeInputVacinador || localStorage.getItem('lf_nome_usuario_vacina') || 'Usuário';
 
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
@@ -274,7 +274,7 @@ function atualizarPreview() {
                 let baseLarge = unitH * 2.0; 
                 let baseSmall = unitH * 1.5; 
 
-                const sizeVacina = cfgUser.fields.vacina ? getScaledSizeDOM(vacV.toUpperCase(), baseLarge, 800, usableW) : baseLarge;
+                const sizeVacina = cfgUser.fields.vacina ? getScaledSizeDOM(vacV, baseLarge, 800, usableW) : baseLarge;
                 const sizeData = cfgUser.fields.data ? getScaledSizeDOM(datV, baseLarge, 800, usableW) : baseLarge;
 
                 const activeLargeSizes = [];
@@ -286,14 +286,14 @@ function atualizarPreview() {
 
                 const sizeLote = cfgUser.fields.lote ? getScaledSizeDOM(lotV, maxSmallAllowed, 600, usableW) : maxSmallAllowed;
                 const sizeFabricante = cfgUser.fields.fabricante ? getScaledSizeDOM(fabV, maxSmallAllowed, 600, usableW) : maxSmallAllowed;
-                const sizeVacinador = cfgUser.fields.vacinador ? getScaledSizeDOM(usrV.toUpperCase(), maxSmallAllowed, 600, usableW) : maxSmallAllowed;
+                const sizeVacinador = cfgUser.fields.vacinador ? getScaledSizeDOM(usrV, maxSmallAllowed, 600, usableW) : maxSmallAllowed;
 
                 const activeItems = [];
-                if (cfgUser.fields.vacina) activeItems.push({ text: vacV.toUpperCase(), weight: 800, size: sizeVacina, color: '#000' });
+                if (cfgUser.fields.vacina) activeItems.push({ text: vacV, weight: 800, size: sizeVacina, color: '#000' });
                 if (cfgUser.fields.data) activeItems.push({ text: datV, weight: 800, size: sizeData, color: '#000' });
                 if (cfgUser.fields.lote) activeItems.push({ text: lotV, weight: 600, size: sizeLote, color: '#505050' });
                 if (cfgUser.fields.fabricante) activeItems.push({ text: fabV, weight: 600, size: sizeFabricante, color: '#505050' });
-                if (cfgUser.fields.vacinador) activeItems.push({ text: usrV.toUpperCase(), weight: 600, size: sizeVacinador, color: '#505050' });
+                if (cfgUser.fields.vacinador) activeItems.push({ text: usrV, weight: 600, size: sizeVacinador, color: '#505050' });
 
                 let innerHTML = `<div style="position: relative; width: 100%; height: 100%;">`;
                 const count = activeItems.length;
@@ -404,7 +404,7 @@ if (btnDataBranco) {
 const btnVacinadorLogado = document.getElementById('btnVacinadorLogado');
 if (btnVacinadorLogado) {
     btnVacinadorLogado.addEventListener('click', () => {
-        document.getElementById('cfgNomeVacinador').value = localStorage.getItem('lf_nome_usuario_vacina') || 'USUÁRIO';
+        document.getElementById('cfgNomeVacinador').value = localStorage.getItem('lf_nome_usuario_vacina') || 'Usuário';
         atualizarPreview();
     });
 }
